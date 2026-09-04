@@ -22,16 +22,17 @@ const s = StyleSheet.create({
   },
   item: { marginBottom: 6 },
   strong: { fontFamily: "Helvetica-Bold", fontSize: 9 },
-  body: { lineHeight: 1.15, marginTop: 1 },
+  body: { lineHeight: 1.05, marginTop: 0.5 },
   source: { color: "#d84220", fontSize: 7, marginTop: 1 },
   signal: {
     backgroundColor: "#f3f5f6",
-    padding: 6,
-    marginBottom: 4,
+    padding: 5,
+    marginBottom: 3,
     borderLeft: 2,
     borderLeftColor: "#ef4b23",
   },
   fleetMeta: { color: "#69727d", fontSize: 7, marginTop: 1 },
+  fleetSignalItem: { marginBottom: 2 },
   footer: {
     position: "absolute",
     left: 32,
@@ -51,6 +52,8 @@ const SourceLink = ({ source }: { source: Source }) => (
 );
 export function BriefDocument({ data }: { data: BriefData }) {
   const d = data.department;
+  const olderApparatus = data.callSignals.filter((signal) => signal.kind === "fleet");
+  const otherSignals = data.callSignals.filter((signal) => signal.kind !== "fleet");
   return (
     <Document>
       <Page size="LETTER" style={s.page}>
@@ -65,7 +68,26 @@ export function BriefDocument({ data }: { data: BriefData }) {
         </View>
         <View style={s.section}>
           <Text style={s.heading}>Why call now</Text>
-          {data.callSignals.map((x, i) => (
+          {olderApparatus.length > 0 && (
+            <View style={s.signal}>
+              <Text style={s.strong}>Older apparatus identified</Text>
+              {olderApparatus.map((signal, i) => (
+                <View style={s.fleetSignalItem} key={i}>
+                  <Text style={s.body}>
+                    {signal.detail.replace(
+                      /\s*Ask whether it remains active and if replacement or resale is being considered\.$/,
+                      "",
+                    )}
+                  </Text>
+                  <SourceLink source={signal.source} />
+                </View>
+              ))}
+              <Text style={s.body}>
+                Ask which remain active and whether replacement or resale is being considered.
+              </Text>
+            </View>
+          )}
+          {otherSignals.map((x, i) => (
             <View style={s.signal} key={i}>
               <Text style={s.strong}>{x.headline}</Text>
               <Text style={s.body}>{x.detail}</Text>
